@@ -9,20 +9,6 @@ ON PRIMARY (
     MAXSIZE     = UNLIMITED,
     FILEGROWTH  = 64MB
 ),
--- FILEGROUP DocumentsGroup (
---     NAME        = 'LegalCaseManagementDB_Docs',
---     FILENAME    = 'D:\Full Stack .Net ITI\Smart Lawyer C# Widows Form Project\LegalCaseManagementDB_Docs.ndf',
---     SIZE        = 256MB,
---     MAXSIZE     = UNLIMITED,
---     FILEGROWTH  = 128MB
--- ),
--- FILEGROUP ArchiveGroup (
---     NAME        = 'LegalCaseManagementDB_Archive',
---     FILENAME    = 'D:\Full Stack .Net ITI\Smart Lawyer C# Widows Form Project\LegalCaseManagementDB_Archive.ndf',
---     SIZE        = 64MB,
---     MAXSIZE     = UNLIMITED,
---     FILEGROWTH  = 64MB
--- )
 LOG ON (
     NAME        = 'LegalCaseManagementDB_Log',
     FILENAME    = 'D:\Full Stack .Net ITI\Smart Lawyer C# Widows Form Project\LegalCaseManagementDB.ldf',
