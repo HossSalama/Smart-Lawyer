@@ -439,6 +439,7 @@ namespace Smart_Lawyer
             guna2Button3.TabIndex = 4;
             guna2Button3.Text = "«·⁄„·«¡";
             guna2Button3.TextAlign = HorizontalAlignment.Left;
+            guna2Button3.Click += guna2Button3_Click;
             // 
             // guna2HtmlLabel1
             // 

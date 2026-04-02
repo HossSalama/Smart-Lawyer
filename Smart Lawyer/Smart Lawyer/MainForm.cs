@@ -31,9 +31,15 @@ namespace Smart_Lawyer
         {
             UC_Financials financialsPage = new UC_Financials();
             AddControlToMainPanel(financialsPage);
-            UpdateHeader("«·Œ“Ì‰… Ê«·„«·Ì« ", "≈œ«—… «·Ê«—œ«  Ê«·„’—Ê›« ", "≈÷«›… ”‰œ", () => {
+            UpdateHeader(" «·√ ⁄«» Ê«·œ›⁄« ", "≈œ«—… « ⁄«» «·ﬁ÷«Ì« Ê„ «»⁄Â «·œ›⁄«  ", "  ”ÃÌ· œ›⁄Â ÃœÌœÂ ", () =>
+            {
                 MessageBox.Show("”Ì „ › Õ ‰«›–… ≈÷«›… ”‰œ „«·Ì ÃœÌœ");
             });
+        }
+
+        private void guna2Button3_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
