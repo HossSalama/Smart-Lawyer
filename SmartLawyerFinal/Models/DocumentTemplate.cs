@@ -15,7 +15,5 @@ public partial class DocumentTemplate
 
     public int AddedBy { get; set; }
 
-    public DateTime AddedAt { get; set; }
-
     public virtual User AddedByNavigation { get; set; } = null!;
 }

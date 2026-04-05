@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dapper;
-using SmartLawyerFinal.DAL.Helpers;
-using SmartLawyerFinal.Models;
 
 
-namespace SmartLawyerFinal.DAL.Repositories
+global using Dapper;
+global using Microsoft.VisualBasic.ApplicationServices;
+global using SmartLawyerFinal.DAL.Helpers;
+
+namespace SmartLawyerFinal.DAL.Repositories.ClassRepository
 {
     public class UserRepository
     {

@@ -25,7 +25,6 @@
   <ItemGroup>
     <Folder Include="CustomControls\" />
     <Folder Include="Enums\" />
-    <Folder Include="DTOs\" />
     <Folder Include="UserControls\Shared\" />
   </ItemGroup>
 

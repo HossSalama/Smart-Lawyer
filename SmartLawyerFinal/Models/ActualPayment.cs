@@ -21,7 +21,7 @@ public partial class ActualPayment
 
     public string? Notes { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateOnly CreatedAt { get; set; }
 
     public int? InstallmentId { get; set; }
 

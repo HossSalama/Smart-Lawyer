@@ -25,8 +25,6 @@ public partial class Case
 
     public string? ArchiveNote { get; set; }
 
-    public DateTime CreatedAt { get; set; }
-
     public DateTime UpdatedAt { get; set; }
 
     public int ClientId { get; set; }

@@ -11,8 +11,6 @@ public partial class CaseOpponent
 
     public int OpponentId { get; set; }
 
-    public string Role { get; set; } = null!;
-
     public DateTime AddedAt { get; set; }
 
     public virtual Case Case { get; set; } = null!;

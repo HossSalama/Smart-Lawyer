@@ -21,7 +21,7 @@ public partial class AdminExpense
 
     public string? Notes { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateOnly CreatedAt { get; set; }
 
     public virtual Case Case { get; set; } = null!;
 

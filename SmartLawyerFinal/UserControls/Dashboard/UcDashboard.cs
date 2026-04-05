@@ -20,7 +20,17 @@ namespace SmartLawyerFinal.UserControls.Dashboard
             InitializeComponent();
             this.BackColor = Color.FromArgb(245, 245, 250);
             this.Dock = DockStyle.Fill;
-            this.Load += (s, e) => BuildDashboard();
+            this.Load += UcDashboard_Load;
+            this.Resize += (s, e) =>
+            {
+                if (this.Width > 100 && this.Controls.Count == 0)
+                    BuildDashboard();
+            };
+        }
+        private void UcDashboard_Load(object sender, EventArgs e)
+        {
+            if (this.Width > 100)
+                BuildDashboard();
         }
         private void BuildDashboard()
         {

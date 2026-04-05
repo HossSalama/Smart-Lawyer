@@ -1,6 +1,6 @@
 ﻿using Guna.UI2.WinForms;
 using Smart_Lawyer;
-using SmartLawyerFinal.BLL.Services;
+using SmartLawyerFinal.BLL.Services.ClassSevice;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

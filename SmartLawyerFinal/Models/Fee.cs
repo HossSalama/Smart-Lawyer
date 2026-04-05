@@ -11,8 +11,6 @@ public partial class Fee
 
     public int ClientId { get; set; }
 
-    public string FeeType { get; set; } = null!;
-
     public decimal TotalAmount { get; set; }
 
     public DateOnly DueDate { get; set; }

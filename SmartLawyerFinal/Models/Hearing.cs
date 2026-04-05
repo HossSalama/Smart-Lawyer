@@ -11,19 +11,23 @@ public partial class Hearing
 
     public int CourtId { get; set; }
 
-    public int? DeptId { get; set; }
+    public int DeptId { get; set; }
 
     public string HearingType { get; set; } = null!;
 
     public DateTime HearingDateTime { get; set; }
 
-    public string? JudgeName { get; set; }
+    public string JudgeName { get; set; } = null!;
+
+    public string Period { get; set; } = null!;
 
     public string AttendanceStatus { get; set; } = null!;
 
-    public string? Result { get; set; }
+    public string Result { get; set; } = null!;
 
-    public DateOnly? NextHearingDate { get; set; }
+    public DateOnly NextHearingDate { get; set; }
+
+    public string? NextHearingPeriod { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
@@ -35,5 +39,5 @@ public partial class Hearing
 
     public virtual User CreatedByNavigation { get; set; } = null!;
 
-    public virtual Department? Dept { get; set; }
+    public virtual Department Dept { get; set; } = null!;
 }

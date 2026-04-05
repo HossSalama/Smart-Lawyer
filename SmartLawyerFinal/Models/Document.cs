@@ -23,7 +23,7 @@ public partial class Document
 
     public bool IsArchived { get; set; }
 
-    public DateTime? ArchivedAt { get; set; }
+    public DateOnly? ArchivedAt { get; set; }
 
     public int? ArchivedBy { get; set; }
 

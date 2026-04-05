@@ -1,7 +1,10 @@
-ï»¿using SmartLawyerFinal.DAL.Repositories;
-using SmartLawyerFinal.Models;
 
-namespace SmartLawyerFinal.BLL.Services
+global using SmartLawyerFinal.DAL.Repositories;
+global using SmartLawyerFinal.Models;
+global using User = SmartLawyerFinal.Models.User;
+using SmartLawyerFinal.DAL.Repositories.ClassRepository;
+
+namespace SmartLawyerFinal.BLL.Services.ClassSevice
 {
     public class AuthService
     {
@@ -19,13 +22,13 @@ namespace SmartLawyerFinal.BLL.Services
 
             if (string.IsNullOrWhiteSpace(email))
             {
-                message = "Ù…Ù† ÙØ¶Ù„Ùƒ Ø§Ø¯Ø®Ù„ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ";
+                message = "ãä İÖáß ÇÏÎá ÇáÈÑíÏ ÇáÅáßÊÑæäí";
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                message = "Ù…Ù† ÙØ¶Ù„Ùƒ Ø§Ø¯Ø®Ù„ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±";
+                message = "ãä İÖáß ÇÏÎá ßáãÉ ÇáãÑæÑ";
                 return false;
             }
 
@@ -33,7 +36,7 @@ namespace SmartLawyerFinal.BLL.Services
 
             if (user == null)
             {
-                message = "Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯";
+                message = "ÇáÈÑíÏ ÇáÅáßÊÑæäí ÛíÑ ãæÌæÏ";
                 return false;
             }
 
@@ -41,7 +44,7 @@ namespace SmartLawyerFinal.BLL.Services
 
             if (!valid)
             {
-                message = "ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ØºÙŠØ± ØµØ­ÙŠØ­Ø©";
+                message = "ßáãÉ ÇáãÑæÑ ÛíÑ ÕÍíÍÉ";
                 return false;
             }
 

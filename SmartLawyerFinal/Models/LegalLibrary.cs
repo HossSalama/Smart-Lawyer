@@ -17,8 +17,6 @@ public partial class LegalLibrary
 
     public string? Description { get; set; }
 
-    public DateTime AddedAt { get; set; }
-
     public int AddedBy { get; set; }
 
     public virtual User AddedByNavigation { get; set; } = null!;

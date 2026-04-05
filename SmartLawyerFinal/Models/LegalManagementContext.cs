@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SmartLawyerFinal.Models;
 
-public partial class LegalCaseManagementDbContext : DbContext
+public partial class LegalManagementContext : DbContext
 {
-    public LegalCaseManagementDbContext()
+    public LegalManagementContext()
     {
     }
 
-    public LegalCaseManagementDbContext(DbContextOptions<LegalCaseManagementDbContext> options)
+    public LegalManagementContext(DbContextOptions<LegalManagementContext> options)
         : base(options)
     {
     }
@@ -61,7 +61,7 @@ public partial class LegalCaseManagementDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=LegalCaseManagementDB;Trusted_Connection=True;Encrypt=False;");
+        => optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=LegalCaseManagementDB;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -69,18 +69,14 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<ActualPayment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ActualPa__3214EC078050A2B3");
+            entity.HasKey(e => e.Id).HasName("PK__ActualPa__3214EC079243D2AE");
 
             entity.ToTable("ActualPayments", "Finance");
 
-            entity.HasIndex(e => e.FeeId, "IX_ActualPayments_FeeId");
-
-            entity.HasIndex(e => e.ReceiptNumber, "UQ__ActualPa__C08AFDABCEAD2FCA").IsUnique();
+            entity.HasIndex(e => e.ReceiptNumber, "UQ__ActualPa__C08AFDAB7C3F98C9").IsUnique();
 
             entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Method)
                 .HasMaxLength(50)
                 .HasDefaultValue("كاش");
@@ -89,6 +85,7 @@ public partial class LegalCaseManagementDbContext : DbContext
 
             entity.HasOne(d => d.Fee).WithMany(p => p.ActualPayments)
                 .HasForeignKey(d => d.FeeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ActPay_Fee");
 
             entity.HasOne(d => d.Installment).WithMany(p => p.ActualPayments)
@@ -103,20 +100,19 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<AdminExpense>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AdminExp__3214EC07AE6EAC7C");
+            entity.HasKey(e => e.Id).HasName("PK__AdminExp__3214EC0712846B0C");
 
             entity.ToTable("AdminExpenses", "Finance");
 
             entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.ExpenseDate).HasDefaultValueSql("(CONVERT([date],getdate()))");
             entity.Property(e => e.ReceiptPath).HasMaxLength(1000);
 
             entity.HasOne(d => d.Case).WithMany(p => p.AdminExpenses)
                 .HasForeignKey(d => d.CaseId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AdminExp_Case");
 
             entity.HasOne(d => d.PaidByNavigation).WithMany(p => p.AdminExpenses)
@@ -127,15 +123,15 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<Appeal>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Appeals__3214EC0717DC820A");
+            entity.HasKey(e => e.Id).HasName("PK__Appeals__3214EC0717FB0C75");
 
             entity.ToTable("Appeals", "Legal");
 
-            entity.HasIndex(e => e.CaseId, "IX_Appeals_CaseId");
+            entity.HasIndex(e => e.AppealNumber, "UQ__Appeals__9802DB2581E9FC9B").IsUnique();
 
-            entity.HasIndex(e => e.AppealNumber, "UQ__Appeals__9802DB25D967ADE8").IsUnique();
-
-            entity.Property(e => e.AppealNumber).HasMaxLength(100);
+            entity.Property(e => e.AppealNumber)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.AppealType).HasMaxLength(100);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -163,24 +159,13 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<Case>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Cases__3214EC073CC68D9F");
+            entity.HasKey(e => e.Id).HasName("PK__Cases__3214EC077FEDE386");
 
             entity.ToTable("Cases", "Legal");
 
-            entity.HasIndex(e => e.CaseNumber, "IX_Cases_CaseNumber");
-
-            entity.HasIndex(e => e.ClientId, "IX_Cases_ClientId");
-
-            entity.HasIndex(e => e.IsArchived, "IX_Cases_IsArchived");
-
-            entity.HasIndex(e => e.StatusId, "IX_Cases_StatusId");
-
             entity.Property(e => e.ArchiveNote).HasMaxLength(500);
             entity.Property(e => e.ArchivedAt).HasColumnType("datetime");
-            entity.Property(e => e.CaseNumber).HasMaxLength(50);
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.CaseNumber).HasMaxLength(100);
             entity.Property(e => e.OpenDate).HasDefaultValueSql("(CONVERT([date],getdate()))");
             entity.Property(e => e.Stage).HasMaxLength(100);
             entity.Property(e => e.Title).HasMaxLength(500);
@@ -224,7 +209,7 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<CaseLawyer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CaseLawy__3214EC07C00DF0D3");
+            entity.HasKey(e => e.Id).HasName("PK__CaseLawy__3214EC0729B90EEA");
 
             entity.ToTable("CaseLawyers", "Legal");
 
@@ -251,7 +236,7 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<CaseOpponent>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CaseOppo__3214EC0756721887");
+            entity.HasKey(e => e.Id).HasName("PK__CaseOppo__3214EC0713244ACE");
 
             entity.ToTable("CaseOpponents", "Legal");
 
@@ -260,7 +245,6 @@ public partial class LegalCaseManagementDbContext : DbContext
             entity.Property(e => e.AddedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.Role).HasMaxLength(100);
 
             entity.HasOne(d => d.Case).WithMany(p => p.CaseOpponents)
                 .HasForeignKey(d => d.CaseId)
@@ -274,85 +258,98 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<CaseStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CaseStat__3214EC072664DF77");
+            entity.HasKey(e => e.Id).HasName("PK__CaseStat__3214EC07B5F2F383");
 
-            entity.ToTable("CaseStatuses", "Lookup", tb => tb.HasTrigger("trg_LockCaseStatusesTable"));
+            entity.ToTable("CaseStatuses", "Lookup");
 
-            entity.HasIndex(e => e.StatusName, "UQ__CaseStat__05E7698ADD8580C0").IsUnique();
+            entity.HasIndex(e => e.StatusName, "UQ__CaseStat__05E7698A51AACFCC").IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Color)
                 .HasMaxLength(7)
-                .HasDefaultValue("#FFFFFF");
-            entity.Property(e => e.StatusName).HasMaxLength(100);
+                .IsUnicode(false)
+                .HasDefaultValue("#1D9E75");
+            entity.Property(e => e.StatusName)
+                .HasMaxLength(15)
+                .HasDefaultValue("مفتوحة");
         });
 
         modelBuilder.Entity<CaseType>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CaseType__3214EC0771840B19");
+            entity.HasKey(e => e.Id).HasName("PK__CaseType__3214EC075B6A89A7");
 
-            entity.ToTable("CaseTypes", "Lookup", tb => tb.HasTrigger("trg_LockCaseTypesTable"));
+            entity.ToTable("CaseTypes", "Lookup");
 
-            entity.HasIndex(e => e.TypeName, "UQ__CaseType__D4E7DFA83269018D").IsUnique();
+            entity.HasIndex(e => e.TypeName, "UQ__CaseType__D4E7DFA851ADBB57").IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.TypeName).HasMaxLength(100);
+            entity.Property(e => e.TypeName).HasMaxLength(15);
         });
 
         modelBuilder.Entity<Client>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Clients__3214EC07D01E54B3");
+            entity.HasKey(e => e.Id).HasName("PK__Clients__3214EC072E76F1EE");
 
             entity.ToTable("Clients", "Legal");
 
-            entity.HasIndex(e => e.NationalId, "IX_Clients_NationalId");
+            entity.HasIndex(e => e.CommercialReg, "UQ__Clients__5553E82743175A53").IsUnique();
 
-            entity.HasIndex(e => e.CommercialReg, "UQ__Clients__5553E827A567CAB6").IsUnique();
+            entity.HasIndex(e => e.NationalId, "UQ__Clients__E9AA32FAC4ED8D46").IsUnique();
 
-            entity.HasIndex(e => e.NationalId, "UQ__Clients__E9AA32FAE98F7CF3").IsUnique();
-
-            entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.Address).HasMaxLength(100);
             entity.Property(e => e.ClientType)
-                .HasMaxLength(50)
+                .HasMaxLength(10)
                 .HasDefaultValue("فرد");
-            entity.Property(e => e.CommercialReg).HasMaxLength(50);
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.Email).HasMaxLength(200);
-            entity.Property(e => e.FullName).HasMaxLength(200);
+            entity.Property(e => e.CommercialReg)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.JobTitle).HasMaxLength(200);
+            entity.Property(e => e.JobTitle).HasMaxLength(50);
             entity.Property(e => e.NationalId)
                 .HasMaxLength(14)
+                .IsUnicode(false)
                 .IsFixedLength();
-            entity.Property(e => e.Phone).HasMaxLength(20);
-            entity.Property(e => e.SecondaryPhone).HasMaxLength(20);
+            entity.Property(e => e.Phone)
+                .HasMaxLength(11)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.SecondaryPhone)
+                .HasMaxLength(11)
+                .IsUnicode(false)
+                .IsFixedLength();
         });
 
         modelBuilder.Entity<Court>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Courts__3214EC07AB8C6C34");
+            entity.HasKey(e => e.Id).HasName("PK__Courts__3214EC0774F0030F");
 
             entity.ToTable("Courts", "Lookup");
 
-            entity.HasIndex(e => e.CourtName, "UQ__Courts__5750888E2C1B6F2E").IsUnique();
+            entity.HasIndex(e => e.CourtName, "UQ__Courts__5750888E36409F76").IsUnique();
 
-            entity.Property(e => e.Address).HasMaxLength(500);
-            entity.Property(e => e.CourtName).HasMaxLength(200);
-            entity.Property(e => e.Location).HasMaxLength(200);
-            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.Address).HasMaxLength(100);
+            entity.Property(e => e.CourtName).HasMaxLength(100);
+            entity.Property(e => e.Location).HasMaxLength(100);
+            entity.Property(e => e.Phone)
+                .HasMaxLength(11)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Department>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Departme__3214EC07C409CE5D");
+            entity.HasKey(e => e.Id).HasName("PK__Departme__3214EC07056CED17");
 
             entity.ToTable("Departments", "Lookup");
 
-            entity.Property(e => e.DeptName).HasMaxLength(200);
-            entity.Property(e => e.JudgeName).HasMaxLength(200);
+            entity.HasIndex(e => new { e.DeptName, e.CourtId }, "UQ_Departments").IsUnique();
+
+            entity.Property(e => e.DeptName).HasMaxLength(100);
+            entity.Property(e => e.JudgeName).HasMaxLength(100);
 
             entity.HasOne(d => d.Court).WithMany(p => p.Departments)
                 .HasForeignKey(d => d.CourtId)
@@ -362,18 +359,17 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<Document>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Document__3214EC0796CA83CA");
+            entity.HasKey(e => e.Id).HasName("PK__Document__3214EC07983567AD");
 
             entity.ToTable("Documents", "Docs");
 
-            entity.HasIndex(e => e.CaseId, "IX_Documents_CaseId");
-
-            entity.HasIndex(e => e.IsArchived, "IX_Documents_IsArchived");
-
-            entity.Property(e => e.ArchivedAt).HasColumnType("datetime");
-            entity.Property(e => e.DocType).HasMaxLength(100);
-            entity.Property(e => e.FilePath).HasMaxLength(1000);
-            entity.Property(e => e.MimeType).HasMaxLength(100);
+            entity.Property(e => e.DocType).HasMaxLength(50);
+            entity.Property(e => e.FilePath)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.MimeType)
+                .HasMaxLength(10)
+                .IsUnicode(false);
             entity.Property(e => e.Title).HasMaxLength(500);
             entity.Property(e => e.UploadedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -395,15 +391,14 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<DocumentTemplate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Document__3214EC07A5626F5F");
+            entity.HasKey(e => e.Id).HasName("PK__Document__3214EC0780986D55");
 
             entity.ToTable("DocumentTemplates", "Docs");
 
-            entity.Property(e => e.AddedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.FilePath).HasMaxLength(1000);
-            entity.Property(e => e.MimeType).HasMaxLength(100);
+            entity.Property(e => e.FilePath).HasMaxLength(500);
+            entity.Property(e => e.MimeType)
+                .HasMaxLength(10)
+                .IsUnicode(false);
             entity.Property(e => e.Title).HasMaxLength(500);
 
             entity.HasOne(d => d.AddedByNavigation).WithMany(p => p.DocumentTemplates)
@@ -414,18 +409,13 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<Fee>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Fees__3214EC077850AEF5");
+            entity.HasKey(e => e.Id).HasName("PK__Fees__3214EC0761BC1105");
 
             entity.ToTable("Fees", "Finance");
-
-            entity.HasIndex(e => e.CaseId, "IX_Fees_CaseId");
 
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.FeeType)
-                .HasMaxLength(50)
-                .HasDefaultValue("ثابت");
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.Case).WithMany(p => p.Fees)
@@ -446,13 +436,9 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<Hearing>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Hearings__3214EC0799EE48A0");
+            entity.HasKey(e => e.Id).HasName("PK__Hearings__3214EC075601EDF7");
 
             entity.ToTable("Hearings", "Legal");
-
-            entity.HasIndex(e => e.CaseId, "IX_Hearings_CaseId");
-
-            entity.HasIndex(e => e.HearingDateTime, "IX_Hearings_DateTime");
 
             entity.Property(e => e.AttendanceStatus)
                 .HasMaxLength(50)
@@ -464,7 +450,11 @@ public partial class LegalCaseManagementDbContext : DbContext
             entity.Property(e => e.HearingType)
                 .HasMaxLength(50)
                 .HasDefaultValue("جلسة");
-            entity.Property(e => e.JudgeName).HasMaxLength(200);
+            entity.Property(e => e.JudgeName).HasMaxLength(100);
+            entity.Property(e => e.NextHearingPeriod).HasMaxLength(20);
+            entity.Property(e => e.Period)
+                .HasMaxLength(5)
+                .HasComputedColumnSql("(case when datepart(hour,[HearingDateTime])<(12) then N'صباحي' else N'مسائي' end)", false);
 
             entity.HasOne(d => d.Case).WithMany(p => p.Hearings)
                 .HasForeignKey(d => d.CaseId)
@@ -482,21 +472,23 @@ public partial class LegalCaseManagementDbContext : DbContext
 
             entity.HasOne(d => d.Dept).WithMany(p => p.Hearings)
                 .HasForeignKey(d => d.DeptId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Hearings_Dept");
         });
 
         modelBuilder.Entity<LegalLibrary>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__LegalLib__3214EC07E952838D");
+            entity.HasKey(e => e.Id).HasName("PK__LegalLib__3214EC072F97D00B");
 
             entity.ToTable("LegalLibrary", "Docs");
 
-            entity.Property(e => e.AddedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
             entity.Property(e => e.Category).HasMaxLength(100);
-            entity.Property(e => e.FilePath).HasMaxLength(1000);
-            entity.Property(e => e.MimeType).HasMaxLength(100);
+            entity.Property(e => e.FilePath)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.MimeType)
+                .HasMaxLength(10)
+                .IsUnicode(false);
             entity.Property(e => e.Title).HasMaxLength(500);
 
             entity.HasOne(d => d.AddedByNavigation).WithMany(p => p.LegalLibraries)
@@ -507,11 +499,9 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<Note>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Notes__3214EC072DB69D5B");
+            entity.HasKey(e => e.Id).HasName("PK__Notes__3214EC07523701A4");
 
             entity.ToTable("Notes", "Legal");
-
-            entity.HasIndex(e => new { e.RelatedTable, e.RelatedId }, "IX_Notes_Related");
 
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -520,9 +510,6 @@ public partial class LegalCaseManagementDbContext : DbContext
                 .HasMaxLength(50)
                 .HasDefaultValue("عامة");
             entity.Property(e => e.RelatedTable).HasMaxLength(100);
-            entity.Property(e => e.UpdatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
 
             entity.HasOne(d => d.User).WithMany(p => p.Notes)
                 .HasForeignKey(d => d.UserId)
@@ -532,28 +519,35 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<Opponent>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Opponent__3214EC07349675B1");
+            entity.HasKey(e => e.Id).HasName("PK__Opponent__3214EC075B5771E3");
 
             entity.ToTable("Opponents", "Legal");
 
-            entity.HasIndex(e => e.NationalId, "UQ__Opponent__E9AA32FA2C980FCB").IsUnique();
+            entity.HasIndex(e => e.NationalId, "UQ__Opponent__E9AA32FA65B02F64").IsUnique();
 
-            entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.Address).HasMaxLength(100);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.FullName).HasMaxLength(200);
+            entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.NationalId)
                 .HasMaxLength(14)
+                .IsUnicode(false)
                 .IsFixedLength();
             entity.Property(e => e.OpponentLawyerName).HasMaxLength(200);
-            entity.Property(e => e.OpponentLawyerPhone).HasMaxLength(11);
-            entity.Property(e => e.Phone).HasMaxLength(11);
+            entity.Property(e => e.OpponentLawyerPhone)
+                .HasMaxLength(11)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.Phone)
+                .HasMaxLength(11)
+                .IsUnicode(false)
+                .IsFixedLength();
         });
 
         modelBuilder.Entity<PaymentSchedule>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__PaymentS__3214EC0771630B91");
+            entity.HasKey(e => e.Id).HasName("PK__PaymentS__3214EC070A799146");
 
             entity.ToTable("PaymentSchedule", "Finance");
 
@@ -567,12 +561,13 @@ public partial class LegalCaseManagementDbContext : DbContext
 
             entity.HasOne(d => d.Fee).WithMany(p => p.PaymentSchedules)
                 .HasForeignKey(d => d.FeeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PaySched_Fee");
         });
 
         modelBuilder.Entity<Report>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Reports__3214EC07D03B3FF8");
+            entity.HasKey(e => e.Id).HasName("PK__Reports__3214EC0721CC3C25");
 
             entity.ToTable("Reports", "Core");
 
@@ -591,43 +586,51 @@ public partial class LegalCaseManagementDbContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Roles__3214EC07287419AD");
+            entity.HasKey(e => e.Id).HasName("PK__Roles__3214EC07B922EC91");
 
-            entity.ToTable("Roles", "Core", tb => tb.HasTrigger("trg_LockRolesTable"));
+            entity.ToTable("Roles", "Core");
 
-            entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B616090B46D1C").IsUnique();
+            entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B6160D0D90D89").IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.RoleName).HasMaxLength(50);
+            entity.Property(e => e.RoleName)
+                .HasMaxLength(10)
+                .HasDefaultValue("محامي");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Users__3214EC07A43F2F42");
+            entity.HasKey(e => e.Id).HasName("PK__Users__3214EC0763A419AA");
 
             entity.ToTable("Users", "Core");
 
-            entity.HasIndex(e => e.Email, "IX_Users_Email");
+            entity.HasIndex(e => e.PhoneNumber, "UQ__Users__85FB4E38776812BE").IsUnique();
 
-            entity.HasIndex(e => e.PhoneNumber, "UQ__Users__85FB4E38B51B4C75").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D1053418FB8C99").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D10534447EB35D").IsUnique();
+            entity.HasIndex(e => e.NationalId, "UQ__Users__E9AA32FA09CF1B85").IsUnique();
 
-            entity.HasIndex(e => e.NationalId, "UQ__Users__E9AA32FA24C5BB8F").IsUnique();
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.Email).HasMaxLength(200);
-            entity.Property(e => e.FullName).HasMaxLength(200);
+            entity.Property(e => e.Email)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+            entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LastLoginAt).HasColumnType("datetime");
             entity.Property(e => e.NationalId)
                 .HasMaxLength(14)
+                .IsUnicode(false)
                 .IsFixedLength();
-            entity.Property(e => e.PasswordHash).HasMaxLength(500);
-            entity.Property(e => e.PhoneNumber).HasMaxLength(11);
-            entity.Property(e => e.SecondNumber).HasMaxLength(11);
+            entity.Property(e => e.PasswordHash)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(11)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.SecondNumber)
+                .HasMaxLength(11)
+                .IsUnicode(false)
+                .IsFixedLength();
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)

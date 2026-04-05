@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace SmartLawyerFinal.Models;
@@ -28,9 +28,7 @@ public partial class Client
     public string ClientType { get; set; } = null!;
 
     public bool IsActive { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
     public virtual ICollection<Case> Cases { get; set; } = new List<Case>();
 
     public virtual ICollection<Fee> Fees { get; set; } = new List<Fee>();

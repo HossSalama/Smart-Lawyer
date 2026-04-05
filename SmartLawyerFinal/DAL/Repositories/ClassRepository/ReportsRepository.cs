@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Dapper;
 using SmartLawyerFinal.DAL.Helpers;
 
-namespace SmartLawyerFinal.DAL.Repositories
+namespace SmartLawyerFinal.DAL.Repositories.ClassRepository
 {
     public class ReportsRepository
     {
@@ -44,10 +44,10 @@ namespace SmartLawyerFinal.DAL.Repositories
                     ISNULL(h.HearingCount, 0) AS Hearings
                 FROM (VALUES(1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12)) m(MonthNum)
                 LEFT JOIN (
-                    SELECT MONTH(CreatedAt) AS M, COUNT(*) AS CaseCount
+                    SELECT MONTH(OpenDate) AS M, COUNT(*) AS CaseCount
                     FROM Legal.Cases
-                    WHERE YEAR(CreatedAt) = YEAR(GETDATE())
-                    GROUP BY MONTH(CreatedAt)
+                    WHERE YEAR(OpenDate) = YEAR(GETDATE())
+                    GROUP BY MONTH(OpenDate)
                 ) c ON c.M = m.MonthNum
                 LEFT JOIN (
                     SELECT MONTH(HearingDateTime) AS M, COUNT(*) AS HearingCount
@@ -100,7 +100,7 @@ namespace SmartLawyerFinal.DAL.Repositories
                 SELECT TOP 5
                     N'إضافة قضية جديدة' AS Action,
                     Title               AS Detail,
-                    CreatedAt           AS ActionTime
+                    OpenDate           AS ActionTime
                 FROM Legal.Cases
                 UNION ALL
                 SELECT TOP 5
@@ -111,7 +111,7 @@ namespace SmartLawyerFinal.DAL.Repositories
                 ORDER BY ActionTime DESC";
             return conn.Query<ActivityItem>(sql).AsList();
         }
-
+         
         // ── Upcoming Hearings Report ──────────────────
         public List<HearingReport> GetUpcomingHearings()
         {

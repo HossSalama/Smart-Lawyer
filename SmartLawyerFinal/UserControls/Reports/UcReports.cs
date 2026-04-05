@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Guna.UI2.WinForms;
-using SmartLawyerFinal.DAL.Repositories;
+using SmartLawyerFinal.DAL.Repositories.ClassRepository;
 using System.Drawing.Drawing2D;
 
 
@@ -30,7 +30,17 @@ namespace SmartLawyerFinal.UserControls.Reports
         private void UcReports_Load(object sender, EventArgs e)
         {
             _repo = new ReportsRepository();
-            BuildUI();
+            if (this.Width > 100)
+                BuildUI();
+            else
+                this.Resize += (s, re) =>
+                {
+                    if (this.Width > 100 && this.Controls.Count == 0)
+                    {
+                        _repo = new ReportsRepository();
+                        BuildUI();
+                    }
+                };
         }
         private void BuildUI()
         {

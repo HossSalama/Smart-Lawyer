@@ -23,8 +23,6 @@ public partial class User
 
     public bool IsActive { get; set; }
 
-    public DateTime CreatedAt { get; set; }
-
     public DateTime? LastLoginAt { get; set; }
 
     public virtual ICollection<ActualPayment> ActualPayments { get; set; } = new List<ActualPayment>();

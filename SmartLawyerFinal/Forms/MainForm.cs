@@ -1,5 +1,5 @@
 ﻿using Guna.UI2.WinForms;
-using SmartLawyerFinal.BLL.Services;
+using SmartLawyerFinal.BLL.Services.ClassSevice;
 using SmartLawyerFinal.Forms;
 using SmartLawyerFinal.UserControls.Dashboard;
 using System;
@@ -23,8 +23,8 @@ namespace Smart_Lawyer
         private Label lblAppName;
         private Label lblAppSub;
         private Label lblUserName;
-        private Panel pnlUserAvatar;
-        private Label lblAvatarLetter;
+        //private Panel pnlUserAvatar;
+        //private Label lblAvatarLetter;
         private Guna2Button btnDashboard;
         private Guna2Button btnClients;
         private Guna2Button btnCases;
@@ -240,29 +240,29 @@ namespace Smart_Lawyer
             });
 
             // Avatar
-            pnlUserAvatar = new Panel
-            {
-                Size = new Size(36, 36),
-                Location = new Point(62, 11),
-                BackColor = Color.FromArgb(230, 81, 0)
-            };
-            var ap = new GraphicsPath();
-            ap.AddEllipse(0, 0, 36, 36);
-            pnlUserAvatar.Region = new Region(ap);
-            string fl = AuthService.CurrentUser?.FullName?.Substring(0, 1) ?? "م";
-            lblAvatarLetter = new Label
-            {
-                Text = fl,
-                Font = new Font("Segoe UI", 13, FontStyle.Bold),
-                ForeColor = Color.White,
-                BackColor = Color.Transparent,
-                Size = new Size(36, 36),
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-            pnlUserAvatar.Controls.Add(lblAvatarLetter);
+            //pnlUserAvatar = new Panel
+            //{
+            //    Size = new Size(36, 36),
+            //    Location = new Point(62, 11),
+            //    BackColor = Color.FromArgb(230, 81, 0)
+            //};
+            //var ap = new GraphicsPath();
+            //ap.AddEllipse(0, 0, 36, 36);
+            //pnlUserAvatar.Region = new Region(ap);
+            //string fl = AuthService.CurrentUser?.FullName?.Substring(0, 1) ?? "م";
+            //lblAvatarLetter = new Label
+            //{
+            //    Text = fl,
+            //    Font = new Font("Segoe UI", 13, FontStyle.Bold),
+            //    ForeColor = Color.White,
+            //    BackColor = Color.Transparent,
+            //    Size = new Size(36, 36),
+            //    TextAlign = ContentAlignment.MiddleCenter
+            //};
+            //pnlUserAvatar.Controls.Add(lblAvatarLetter);
 
             pnlHeader.Controls.AddRange(new Control[]
-                { pnlNotif, pnlBadge, pnlUserAvatar, lblUserName });
+                { pnlNotif, pnlBadge, lblUserName });
 
             // Content 
             pnlContent = new Panel
@@ -311,13 +311,16 @@ namespace Smart_Lawyer
         private void LoadPage(Guna2Button btn)
         {
             pnlContent.Controls.Clear();
-            UserControl? uc = null;
+            UserControl uc = null;
+
             if (btn == btnDashboard) uc = new UcDashboard();
-            if (btn == btnFees) uc = new UcFinance();
+            if (btn == btnFees) uc = new UC_Finance();
             if (btn == btnReports) uc = new UcReports();
+
             if (uc != null)
             {
                 uc.Dock = DockStyle.Fill;
+                uc.Size = new Size(pnlContent.Width, pnlContent.Height);
                 pnlContent.Controls.Add(uc);
             }
         }
