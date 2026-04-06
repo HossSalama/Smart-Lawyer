@@ -1,4 +1,5 @@
-﻿using System;
+using SmartLawyerFinal.Enums;
+using System;
 using System.Collections.Generic;
 
 namespace SmartLawyerFinal.Models;
@@ -15,7 +16,7 @@ public partial class PaymentSchedule
 
     public DateOnly DueDate { get; set; }
 
-    public string Status { get; set; } = null!;
+    public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
 
     public string? Notes { get; set; }
 

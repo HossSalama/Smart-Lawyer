@@ -18,7 +18,8 @@ namespace SmartLawyerFinal.UserControls.Finance
         private Panel _pnlScroll;
         private FlowLayoutPanel _flowCards;
         private Guna.UI2.WinForms.Guna2Button _btnAdd;
-        private FinanceService _financeService; 
+        private FinanceService _financeService;
+        private Guna.UI2.WinForms.Guna2DataGridView dgvFinance; 
         public UC_Finance()
         {
             var context = new LegalManagementContext();
@@ -75,12 +76,124 @@ namespace SmartLawyerFinal.UserControls.Finance
             var searchArea = CreateSearchArea();
             _pnlScroll.Controls.Add(searchArea);
             _pnlScroll.Controls.Add(_flowCards);
+
             _flowCards.SendToBack(); 
             searchArea.BringToFront();
+            CreateFinanceTabs(_pnlScroll);
+            dgvFinance = new Guna.UI2.WinForms.Guna2DataGridView();
+            SetupDataGridView(); 
+
+            dgvFinance.Dock = DockStyle.Fill; 
+            _pnlScroll.Controls.Add(dgvFinance);
+
+            dgvFinance.BringToFront();
             UpdateCardsScale();
             this.SizeChanged += (s, e) => UpdateCardsScale();
         }
 
+        private async Task LoadTabData(string tabName)
+        {
+            this.Cursor = Cursors.WaitCursor;
+            try
+            {
+                switch (tabName)
+                {
+                    case "الكل":
+                        dgvFinance.DataSource = await _financeService.GetAllTransactionsAsync();
+                        break;
+                    case "الدفعات الفعلية":
+                        dgvFinance.DataSource = await _financeService.GetActualPaymentsAsync();
+                        break;
+                    case "الأقساط":
+                        dgvFinance.DataSource = await _financeService.GetUpcomingInstallmentsAsync();
+                        break;
+                    case "المتأخرات":
+                        dgvFinance.DataSource = await _financeService.GetOverduePaymentsAsync();
+                        break;
+                    case "المصاريف الاداريه":
+                        dgvFinance.DataSource = await _financeService.GetAdminExpencesAsync();
+                        break;
+                }
+            }
+            catch (Exception ex) { /* Handle error */ }
+            finally { this.Cursor = Cursors.Default; }
+        }
+        private void SetupDataGridView()
+        {
+            dgvFinance.ReadOnly = true;
+            dgvFinance.AllowUserToAddRows = false;
+            dgvFinance.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvFinance.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvFinance.RightToLeft = RightToLeft.Yes;
+            dgvFinance.RowHeadersVisible = false; // إخفاء العمود الجانبي الصغير
+            dgvFinance.AutoGenerateColumns = false; // مهم جداً عشان نحدد إحنا الأعمدة اللي تظهر
+
+            // استايل الهيدر
+            dgvFinance.ColumnHeadersHeight = 45;
+            dgvFinance.ThemeStyle.HeaderStyle.BackColor = Color.FromArgb(30, 30, 50);
+            dgvFinance.ThemeStyle.HeaderStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            dgvFinance.ThemeStyle.HeaderStyle.ForeColor = Color.White;
+
+            // استايل الصفوف
+            dgvFinance.ThemeStyle.RowsStyle.Font = new Font("Segoe UI", 10);
+            dgvFinance.ThemeStyle.RowsStyle.SelectionBackColor = Color.FromArgb(230, 230, 245);
+            dgvFinance.ThemeStyle.RowsStyle.SelectionForeColor = Color.FromArgb(30, 30, 50);
+            dgvFinance.RowTemplate.Height = 40;
+
+            // --- تعريف الأعمدة وربطها بالـ DTO ---
+            dgvFinance.Columns.Clear();
+
+            // اسم العميل
+            dgvFinance.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "ClientName",
+                HeaderText = "اسم الموكل",
+                FillWeight = 130
+            });
+
+            // رقم القضية
+            dgvFinance.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "CaseNumber",
+                HeaderText = "رقم القضية",
+                FillWeight = 90
+            });
+
+            // المبلغ
+            dgvFinance.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Amount",
+                HeaderText = "المبلغ",
+                FillWeight = 80
+            });
+
+            // التاريخ
+            dgvFinance.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "PaymentDate",
+                HeaderText = "التاريخ",
+                FillWeight = 100
+            });
+
+            // نوع المعاملة (قسط / دفعة / مصروف)
+            dgvFinance.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "PaymentTypeName",
+                HeaderText = "النوع",
+                FillWeight = 100
+            });
+
+            // الحالة (مدفوع / متأخر / قيد الانتظار)
+            dgvFinance.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "StatusName",
+                HeaderText = "الحالة",
+                FillWeight = 100
+            });
+
+            dgvFinance.CellFormatting += DgvFinance_CellFormatting;
+        }
+     
         private Panel CreateSearchArea()
         {
             var pnlSearch = new Panel
@@ -113,15 +226,15 @@ namespace SmartLawyerFinal.UserControls.Finance
 
             void ApplyResponsiveLayout()
             {
-                int totalAvailableWidth = pnlSearch.Width - 40;
+                int totalAvailableWidth = pnlSearch.Width - 30;
 
-                txtSearch.Width = (int)(totalAvailableWidth * 0.70);
+                txtSearch.Width = (int)(totalAvailableWidth * 0.74);
                 btnSearch.Width = (int)(totalAvailableWidth * 0.20);
 
                 txtSearch.Height = 42;
                 btnSearch.Height = 42;
 
-                txtSearch.Left = pnlSearch.Width - txtSearch.Width - 20; 
+                txtSearch.Left = pnlSearch.Width - txtSearch.Width - 20;
 
                 int gap = (int)(totalAvailableWidth * 0.05);
                 btnSearch.Left = txtSearch.Left - btnSearch.Width - gap;
@@ -131,19 +244,38 @@ namespace SmartLawyerFinal.UserControls.Finance
             }
 
             pnlSearch.SizeChanged += (s, e) => ApplyResponsiveLayout();
+            txtSearch.TextChanged += async (s, e) =>
+            {
+                try
+                {
+                    string term = txtSearch.Text.Trim();
 
-            btnSearch.Click += (s, e) => {
-                if (!string.IsNullOrWhiteSpace(txtSearch.Text))
-                    MessageBox.Show($"جاري البحث عن: {txtSearch.Text}", "البحث");
+                    if (string.IsNullOrWhiteSpace(term))
+                    {
+                        dgvFinance.DataSource = await _financeService.GetAllTransactionsAsync();
+                        return;
+                    }
+
+                    if (term.Length >= 2)
+                    {
+                        var results = await _financeService.SearchAsync(term);
+
+                        dgvFinance.DataSource = null;
+                        dgvFinance.DataSource = results;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Search Error: {ex.Message}");
+                }
             };
-
             pnlSearch.Controls.Add(txtSearch);
             pnlSearch.Controls.Add(btnSearch);
 
-            ApplyResponsiveLayout();
+                ApplyResponsiveLayout();
 
-            return pnlSearch;
-        }
+                return pnlSearch;
+            }
         private async Task LoadDashboardDataAsync()
         {
             try
@@ -177,25 +309,51 @@ namespace SmartLawyerFinal.UserControls.Finance
             _flowCards.Width = _pnlScroll.ClientSize.Width;
             _flowCards.PerformLayout();
         }
-        private Guna.UI2.WinForms.Guna2ShadowPanel CreateSingleCard(string title, string value, Color accentColor , string emojiIcon)
+   
+
+
+
+
+        private void ShowAddFeeDialog()
+        {
+            MessageBox.Show("شاشة إضافة دفعة");
+        }
+        private void DgvFinance_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dgvFinance.Columns[e.ColumnIndex].DataPropertyName == "StatusName" && e.Value != null)
+            {
+                string status = e.Value.ToString();
+
+                if (status.Contains("متأخر"))
+                {
+                    e.CellStyle.ForeColor = Color.Crimson;
+                    e.CellStyle.Font = new Font(dgvFinance.Font, FontStyle.Bold);
+                }
+                else if (status.Contains("تم الدفع"))
+                {
+                    e.CellStyle.ForeColor = Color.DarkGreen;
+                }
+            }
+        }
+        private Guna.UI2.WinForms.Guna2ShadowPanel CreateSingleCard(string title, string value, Color accentColor, string emojiIcon)
         {
             var card = new Guna.UI2.WinForms.Guna2ShadowPanel
             {
                 Size = new Size(150, 150),
                 Radius = 10,
                 FillColor = Color.White,
-                ShadowColor = Color.Black, 
+                ShadowColor = Color.Black,
                 ShadowDepth = 50,
                 Margin = new Padding(15)
             };
             var lblIcon = new Label
             {
-                Text = emojiIcon, 
-                Font = new Font("Segoe UI Emoji", 22), 
-                Location = new Point(15, 30), 
+                Text = emojiIcon,
+                Font = new Font("Segoe UI Emoji", 22),
+                Location = new Point(15, 30),
                 Size = new Size(55, 55),
                 BackColor = Color.Transparent,
-                ForeColor = accentColor, 
+                ForeColor = accentColor,
                 TextAlign = ContentAlignment.MiddleCenter
             };
             var lblTitle = new Label
@@ -205,7 +363,7 @@ namespace SmartLawyerFinal.UserControls.Finance
                 ForeColor = Color.Gray,
                 Location = new Point(20, 15),
                 Size = new Size(card.Width - 40, 25),
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right, 
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 TextAlign = ContentAlignment.MiddleRight
             };
 
@@ -260,13 +418,13 @@ namespace SmartLawyerFinal.UserControls.Finance
             {
                 Text = btnText,
                 Size = new Size(170, 38),
-                Location = new Point(40, 45), 
+                Location = new Point(40, 45),
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 FillColor = Color.FromArgb(30, 30, 50),
                 ForeColor = Color.White,
                 BorderRadius = 8,
                 Cursor = Cursors.Hand,
-                Anchor = AnchorStyles.Top | AnchorStyles.Left 
+                Anchor = AnchorStyles.Top | AnchorStyles.Left
             };
             _btnAdd.Click += (s, e) => btnAction?.Invoke();
 
@@ -279,9 +437,46 @@ namespace SmartLawyerFinal.UserControls.Finance
 
             return pnlHeader;
         }
-        private void ShowAddFeeDialog()
+        private void CreateFinanceTabs(Panel parentPanel)
         {
-            MessageBox.Show("شاشة إضافة دفعة");
+            var pnlTabs = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 55,
+                Padding = new Padding(10, 5, 10, 5),
+                BackColor = Color.Transparent
+            };
+
+            string[] tabNames = { "المصاريف الاداريه", "المتأخرات", "الأقساط", "الدفعات الفعلية", "الكل" };
+
+            foreach (var name in tabNames)
+            {
+                var btnTab = new Guna.UI2.WinForms.Guna2Button
+                {
+                    Text = name,
+                    Size = new Size(180, 50),
+                    Dock = DockStyle.Right,
+                    Margin = new Padding(8),
+                    BorderRadius = 8,
+                    FillColor = Color.White,
+                    ForeColor = Color.Gray,
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                    ButtonMode = Guna.UI2.WinForms.Enums.ButtonMode.RadioButton,
+                    CheckedState = { FillColor = Color.FromArgb(30, 30, 50), ForeColor = Color.White },
+                    Cursor = Cursors.Hand
+                };
+
+                btnTab.Click += async (s, e) => {
+                    await LoadTabData(name);
+                };
+
+                pnlTabs.Controls.Add(btnTab);
+
+                if (name == "الكل") btnTab.Checked = true;
+            }
+
+            parentPanel.Controls.Add(pnlTabs);
+            pnlTabs.BringToFront();
         }
     }
 }

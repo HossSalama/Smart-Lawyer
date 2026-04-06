@@ -1,6 +1,7 @@
-ï»¿using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using SmartLawyerFinal.Enums;
+using System;
+using System.Collections.Generic;
 
 namespace SmartLawyerFinal.Models;
 
@@ -79,7 +80,7 @@ public partial class LegalManagementContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Method)
                 .HasMaxLength(50)
-                .HasDefaultValue("ÙƒØ§Ø´");
+                .HasDefaultValue("ßÇÔ");
             entity.Property(e => e.PaymentDate).HasDefaultValueSql("(CONVERT([date],getdate()))");
             entity.Property(e => e.ReceiptNumber).HasMaxLength(100);
 
@@ -222,7 +223,7 @@ public partial class LegalManagementContext : DbContext
             entity.Property(e => e.RemovedAt).HasColumnType("datetime");
             entity.Property(e => e.Role)
                 .HasMaxLength(100)
-                .HasDefaultValue("Ù…Ø­Ø§Ù…ÙŠ Ù…Ø³Ø§Ø¹Ø¯");
+                .HasDefaultValue("ãÍÇãí ãÓÇÚÏ");
 
             entity.HasOne(d => d.Case).WithMany(p => p.CaseLawyers)
                 .HasForeignKey(d => d.CaseId)
@@ -271,7 +272,7 @@ public partial class LegalManagementContext : DbContext
                 .HasDefaultValue("#1D9E75");
             entity.Property(e => e.StatusName)
                 .HasMaxLength(15)
-                .HasDefaultValue("Ù…ÙØªÙˆØ­Ø©");
+                .HasDefaultValue("ãİÊæÍÉ");
         });
 
         modelBuilder.Entity<CaseType>(entity =>
@@ -299,7 +300,7 @@ public partial class LegalManagementContext : DbContext
             entity.Property(e => e.Address).HasMaxLength(100);
             entity.Property(e => e.ClientType)
                 .HasMaxLength(10)
-                .HasDefaultValue("ÙØ±Ø¯");
+                .HasDefaultValue("İÑÏ");
             entity.Property(e => e.CommercialReg)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -442,19 +443,19 @@ public partial class LegalManagementContext : DbContext
 
             entity.Property(e => e.AttendanceStatus)
                 .HasMaxLength(50)
-                .HasDefaultValue("Ù‚Ø§Ø¯Ù…");
+                .HasDefaultValue("ŞÇÏã");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.HearingDateTime).HasColumnType("datetime");
             entity.Property(e => e.HearingType)
                 .HasMaxLength(50)
-                .HasDefaultValue("Ø¬Ù„Ø³Ø©");
+                .HasDefaultValue("ÌáÓÉ");
             entity.Property(e => e.JudgeName).HasMaxLength(100);
             entity.Property(e => e.NextHearingPeriod).HasMaxLength(20);
             entity.Property(e => e.Period)
                 .HasMaxLength(5)
-                .HasComputedColumnSql("(case when datepart(hour,[HearingDateTime])<(12) then N'ØµØ¨Ø§Ø­ÙŠ' else N'Ù…Ø³Ø§Ø¦ÙŠ' end)", false);
+                .HasComputedColumnSql("(case when datepart(hour,[HearingDateTime])<(12) then N'ÕÈÇÍí' else N'ãÓÇÆí' end)", false);
 
             entity.HasOne(d => d.Case).WithMany(p => p.Hearings)
                 .HasForeignKey(d => d.CaseId)
@@ -508,7 +509,7 @@ public partial class LegalManagementContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.NoteType)
                 .HasMaxLength(50)
-                .HasDefaultValue("Ø¹Ø§Ù…Ø©");
+                .HasDefaultValue("ÚÇãÉ");
             entity.Property(e => e.RelatedTable).HasMaxLength(100);
 
             entity.HasOne(d => d.User).WithMany(p => p.Notes)
@@ -556,8 +557,8 @@ public partial class LegalManagementContext : DbContext
             entity.Property(e => e.Notes).HasMaxLength(500);
             entity.Property(e => e.PlannedAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Status)
-                .HasMaxLength(50)
-                .HasDefaultValue("Ù…Ø¹Ù„Ù‚");
+           .HasConversion<int>() 
+           .HasDefaultValue(PaymentStatus.Pending);
 
             entity.HasOne(d => d.Fee).WithMany(p => p.PaymentSchedules)
                 .HasForeignKey(d => d.FeeId)
@@ -595,7 +596,7 @@ public partial class LegalManagementContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.RoleName)
                 .HasMaxLength(10)
-                .HasDefaultValue("Ù…Ø­Ø§Ù…ÙŠ");
+                .HasDefaultValue("ãÍÇãí");
         });
 
         modelBuilder.Entity<User>(entity =>
